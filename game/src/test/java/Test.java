@@ -89,4 +89,34 @@ public class Test {
         testLogic.rotate();
         assertEquals(0, testLogic.rotation);
     }
+
+    @org.junit.jupiter.api.Test
+    void testLeft() {
+        testLogic.currentCoordinates = new Point(6, 1);
+        testLogic.currentShape = 1;
+        testLogic.rotation = 1;
+        testLogic.left();
+        assertEquals(5, testLogic.currentCoordinates.x);
+        assertEquals(1, testLogic.currentCoordinates.y);
+    }
+
+    @org.junit.jupiter.api.Test
+    void testRight() {
+        testLogic.currentCoordinates = new Point(6, 1);
+        testLogic.currentShape = 1;
+        testLogic.rotation = 1;
+        testLogic.right();
+        assertEquals(7, testLogic.currentCoordinates.x);
+        assertEquals(1, testLogic.currentCoordinates.y);
+    }
+
+    @org.junit.jupiter.api.Test
+    void testDown() {
+        testLogic.currentCoordinates = new Point(6, 1);
+        testLogic.currentShape = 1;
+        testLogic.rotation = 1;
+        testLogic.down();
+        assertEquals(2, testLogic.currentCoordinates.y);
+        assertEquals(6, testLogic.currentCoordinates.x);
+    }
 }
