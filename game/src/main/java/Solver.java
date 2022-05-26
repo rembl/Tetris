@@ -14,7 +14,6 @@ public class Solver {
         int[] best = bestPosition();
         myLogic.currentCoordinates.x = best[0];
         myLogic.rotation = best[1];
-        //myLogic.currentCoordinates.y += myLogic.setShadow();
         myLogic.solverDown = false;
     }
 
@@ -25,9 +24,8 @@ public class Solver {
         double bestScore = -1000;
         int bestRotation = 0;
         int bestX = 0;
-        myLogic.rotation = -1;
+        myLogic.rotation = 0;
         for (int rot = 0; rot < 4; rot++) {
-            myLogic.rotation++;
             for (int x = 1; x < 13; x++) {
                 if (myLogic.collides(x, myLogic.currentCoordinates.y)) continue;
                 myLogic.currentCoordinates.x = x;
@@ -44,6 +42,7 @@ public class Solver {
                     for (int j = 0; j < 24; j++)
                         if (myLogic.board[i][j] == Color.WHITE) myLogic.board[i][j] = Color.BLACK;
             }
+            if (rot < 3) myLogic.rotation++;
         }
         result[0] = bestX;
         result[1] = bestRotation;
@@ -95,7 +94,7 @@ public class Solver {
             if (myLogic.board[1][y] != Color.BLACK) {
             column1 = y;
             break;
-        }
+        } else column1 = 23;
 
         for (int x = 2; x < 13; x++) {
             int column2 = 0;
@@ -103,7 +102,7 @@ public class Solver {
                 if (myLogic.board[x][y] != Color.BLACK) {
                 column2 = y;
                 break;
-            } else column2 = 23;
+                } else column2 = 23;
             result += Math.abs(column1 - column2);
             column1 = column2;
         }
