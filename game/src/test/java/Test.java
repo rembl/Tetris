@@ -7,6 +7,7 @@ public class Test {
     GameLogic testLogic;
     KeyBoard testKeyBoard;
     Interface testInterface;
+    private final int gridWidth = 14;
 
     public Test() {
         testLogic = new GameLogic();
@@ -20,8 +21,9 @@ public class Test {
     void testInit() {
         testLogic.setBackground();
         boolean clear = true;
-        for (int x = 1; x < 13; x++) {
-            for (int y = 0; y < 23; y++) {
+        for (int x = 1; x < gridWidth - 1; x++) {
+            int gridHeight = 24;
+            for (int y = 0; y < gridHeight - 1; y++) {
                 if (testLogic.board[x][y] != Color.BLACK) {
                     clear = false;
                     break;
@@ -35,7 +37,7 @@ public class Test {
     void testDelete() {
         testLogic.setBackground();
         for (int x = 1; x < 6; x++) testLogic.board[x][21] = Color.ORANGE;
-        for (int x = 1; x < 13; x++) testLogic.board[x][22] = Color.BLUE;
+        for (int x = 1; x < gridWidth - 1; x++) testLogic.board[x][22] = Color.BLUE;
         testLogic.deleteRow();
 
         boolean clear = true;

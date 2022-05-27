@@ -3,6 +3,9 @@ import java.awt.*;
 public class Solver {
 
     private final GameLogic myLogic;
+    private final int gridWidth = 14;
+    private final int gridHeight = 24;
+    private Color[][] helpBoard = new Color[gridWidth][gridHeight];
 
     public Solver(GameLogic myLogic) {
         this.myLogic = myLogic;
@@ -10,11 +13,13 @@ public class Solver {
     }
 
     //присваивает нужные значения ротации и x, вызывая bestPosition()
-    public void solve() throws InterruptedException {
+    public void solve(Color[][] board) throws InterruptedException {
+        for (int i = 0; i < gridWidth; i++) {
+            System.arraycopy(board[i], 0, helpBoard[i], 0, gridHeight);
+        }
         int[] best = bestPosition();
-        myLogic.currentCoordinates.x = best[0];
-        myLogic.rotation = best[1];
-        myLogic.solverDown = false;
+        myLogic.setBestX(best[0]);
+        myLogic.setBestRotation(best[1]);
     }
 
     //для данной фигуры проходит по каждой ротации и каждой x, высчитывает для каждого положения setScore()
@@ -26,23 +31,23 @@ public class Solver {
         int bestX = 0;
         myLogic.rotation = 0;
         for (int rot = 0; rot < 4; rot++) {
-            for (int x = 1; x < 13; x++) {
+            for (int x = 1; x < gridWidth - 1; x++) {
                 if (myLogic.collides(x, myLogic.currentCoordinates.y)) continue;
                 myLogic.currentCoordinates.x = x;
                 int additionalY = myLogic.setShadow();
                 for (Point point : Tetromino.Shapes[myLogic.currentShape][myLogic.rotation])
-                    myLogic.board[myLogic.currentCoordinates.x + point.x][myLogic.currentCoordinates.y + additionalY + point.y] = Color.WHITE;
+                    helpBoard[myLogic.currentCoordinates.x + point.x][myLogic.currentCoordinates.y + additionalY + point.y] = Color.WHITE;
                 currScore = setScore();
                 if (currScore > bestScore) {
                     bestScore = currScore;
                     bestRotation = rot;
                     bestX = x;
                 }
-                for (int i = 0; i < 14; i++)
-                    for (int j = 0; j < 24; j++)
-                        if (myLogic.board[i][j] == Color.WHITE) myLogic.board[i][j] = Color.BLACK;
+                for (int i = 0; i < gridWidth; i++)
+                    for (int j = 0; j < gridHeight; j++)
+                        if (helpBoard[i][j] == Color.WHITE) helpBoard[i][j] = Color.BLACK;
             }
-            if (rot < 3) myLogic.rotation++;
+            if (myLogic.rotation < 3) myLogic.rotation++;
         }
         result[0] = bestX;
         result[1] = bestRotation;
@@ -57,9 +62,9 @@ public class Solver {
     //суммарная высота фигур
     public int aggregateHeight(){
         int result = 0;
-        for (int x = 1; x < 13; x++)
-            for (int y = 0; y < 23; y++)
-                if (myLogic.board[x][y] != Color.BLACK) {
+        for (int x = 1; x < gridWidth - 1; x++)
+            for (int y = 0; y < gridHeight - 1; y++)
+                if (helpBoard[x][y] != Color.BLACK) {
                     result += 23 - y;
                     break;
                 }
@@ -69,9 +74,9 @@ public class Solver {
     //количество удаленный линий
     public int completeLines() {
         int result = 0;
-        for (int y = 0; y < 23; y++){
+        for (int y = 0; y < gridHeight - 1; y++){
             int row = 0;
-            for (int x = 1; x < 13; x++) if (myLogic.board[x][y] != Color.BLACK) row++;
+            for (int x = 1; x < gridWidth - 1; x++) if (helpBoard[x][y] != Color.BLACK) row++;
             if (row == 12) result++;
         }
         return result;
@@ -80,9 +85,9 @@ public class Solver {
     //количество дырок - пустые квадраты, у которых сверху есть фигура
     public int holes() {
         int result = 0;
-        for (int x = 1; x < 13; x++)
-            for (int y = 1; y < 23; y++)
-                if (myLogic.board[x][y] == Color.BLACK && myLogic.board[x][y - 1] != Color.BLACK) result++;
+        for (int x = 1; x < gridWidth - 1; x++)
+            for (int y = 1; y < gridHeight - 1; y++)
+                if (helpBoard[x][y] == Color.BLACK && helpBoard[x][y - 1] != Color.BLACK) result++;
         return result;
     }
 
@@ -90,19 +95,19 @@ public class Solver {
     public int bumpiness() {
         int result = 0;
         int column1 = 0;
-        for (int y = 0; y < 23; y++)
-            if (myLogic.board[1][y] != Color.BLACK) {
+        for (int y = 0; y < gridHeight - 1; y++)
+            if (helpBoard[1][y] != Color.BLACK) {
             column1 = y;
             break;
-        } else column1 = 23;
+        } else column1 = gridHeight - 1;
 
-        for (int x = 2; x < 13; x++) {
+        for (int x = 2; x < gridWidth - 1; x++) {
             int column2 = 0;
-            for (int y = 0; y < 23; y++)
-                if (myLogic.board[x][y] != Color.BLACK) {
+            for (int y = 0; y < gridHeight - 1; y++)
+                if (helpBoard[x][y] != Color.BLACK) {
                 column2 = y;
                 break;
-                } else column2 = 23;
+                } else column2 = gridHeight - 1;
             result += Math.abs(column1 - column2);
             column1 = column2;
         }

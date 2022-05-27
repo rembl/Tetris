@@ -11,6 +11,8 @@ public class Interface {
     private final GameLogic myLogic;
     private final int width = 26*15;
     private final int height = 26*25;
+    private final int gridWidth = 14;
+    private final int gridHeight = 24;
 
     public Interface(GameLogic myLogic, KeyBoard myKeyBoard) {
         this.myLogic = myLogic;
@@ -82,8 +84,8 @@ public class Interface {
         public void paint(Graphics g) {
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, width, height);
-            for (int i = 0; i < 14; i++) {
-                for (int j = 0; j < 24; j++) {
+            for (int i = 0; i < gridWidth; i++) {
+                for (int j = 0; j < gridHeight; j++) {
                     g.setColor(myLogic.board[i][j]);
                     g.fillRect(26*i, 26*j, 25, 25);
                 }
@@ -107,5 +109,9 @@ public class Interface {
                         (myLogic.currentCoordinates.y + point.y) * 26,
                         25, 25);
         }
+    }
+
+    public void repaint() {
+        frame.repaint();
     }
 }

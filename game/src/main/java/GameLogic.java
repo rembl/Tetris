@@ -6,6 +6,8 @@ public class GameLogic implements Runnable {
     private KeyBoard myKeyBoard;
     private Interface myInterface;
     private Solver mySolver;
+    private final int gridWidth = 14;
+    private final int gridHeight = 24;
     boolean gameStart = false;
     boolean solveStart = false;
     boolean gameStop = true;
@@ -42,7 +44,7 @@ public class GameLogic implements Runnable {
             }
             if (solveStart) {
                 try {
-                    mySolver.solve();
+                    mySolver.solve(board);
                     down();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -103,8 +105,8 @@ public class GameLogic implements Runnable {
     //заполняет массив фона начальными цветами
     public void setBackground() {
         board = new Color[14][24];
-        for (int i = 0; i < 14; i++) {
-            for (int j = 0; j < 24; j++) {
+        for (int i = 0; i < gridWidth; i++) {
+            for (int j = 0; j < gridHeight; j++) {
                 if ( i == 0 || i == 13 || j == 23) board[i][j] = Color.DARK_GRAY;
                 else board[i][j] = Color.BLACK;
             }
@@ -134,7 +136,7 @@ public class GameLogic implements Runnable {
         int currShadow;
         for (Point point : Tetromino.Shapes[currentShape][rotation]) {
             currShadow = 0;
-            for (int i = currentCoordinates.y + point.y + 1; i < 23; i++) {
+            for (int i = currentCoordinates.y + point.y + 1; i < gridHeight - 1; i++) {
                 if(board[currentCoordinates.x + point.x][i] == Color.BLACK) currShadow++;
                 else break;
             }
@@ -149,28 +151,28 @@ public class GameLogic implements Runnable {
         if (rotation == 3) rotation = 0;
         else rotation++;
         if (collides(currentCoordinates.x, currentCoordinates.y)) rotation = prevRotation;
-        myInterface.frame.repaint();
+        myInterface.repaint();
     }
 
     //опускает фигуру
     public void down() {
         if (!collides(currentCoordinates.x, currentCoordinates.y + 1)) currentCoordinates.y++;
         else setShape();
-        myInterface.frame.repaint();
+        myInterface.repaint();
     }
 
     //перемещает фигуру влево
     public void left() {
         if (!collides(currentCoordinates.x - 1, currentCoordinates.y)
                 && !collides(currentCoordinates.x, currentCoordinates.y + 1)) currentCoordinates.x--;
-        myInterface.frame.repaint();
+        myInterface.repaint();
     }
 
     //перемещает фигуру вправо
     public void right() {
         if (!collides(currentCoordinates.x + 1, currentCoordinates.y)
                 && !collides(currentCoordinates.x, currentCoordinates.y + 1)) currentCoordinates.x++;
-        myInterface.frame.repaint();
+        myInterface.repaint();
     }
 
     //устанавливает фигуру на доске, проверяет на удаляемые ряды и вызывает создание новой фигуры
@@ -179,7 +181,7 @@ public class GameLogic implements Runnable {
             board[currentCoordinates.x + point.x][currentCoordinates.y + point.y] = currentColor;
         deleteRow();
         setTetromino();
-        myInterface.frame.repaint();
+        myInterface.repaint();
     }
 
     //проверяет, можно ли подвигать фигуру
@@ -191,9 +193,9 @@ public class GameLogic implements Runnable {
 
     //удаляет полные ряды
     public void deleteRow() {
-        for (int j = 22; j > 1; j--) {
+        for (int j = gridHeight - 2; j > 1; j--) {
             boolean clear = true;
-            for (int i = 1; i < 13; i++)
+            for (int i = 1; i < gridWidth - 1; i++)
                 if (board[i][j] == Color.BLACK) {
                     clear = false;
                     break;
@@ -203,14 +205,26 @@ public class GameLogic implements Runnable {
                 score++;
                 j = j + 1;
             }
-            myInterface.frame.repaint();
+            myInterface.repaint();
         }
     }
 
     //вспомогательная функция для удаления
     public void singleDelete(int y) {
         for (int j = y; j > 1; j--)
-            for (int i = 1; i < 13; i++)
+            for (int i = 1; i < gridWidth - 1; i++)
                 board[i][j] = board[i][j - 1];
+    }
+
+    //присваивает наилучшие для хода солвера координату х
+    public void setBestX(int bestX) {
+        currentCoordinates.x = bestX;
+        solverDown = false;
+    }
+
+    //присваивает наилучшие для хода солвера ротацию
+    public void setBestRotation(int bestRotation) {
+        rotation = bestRotation;
+        solverDown = false;
     }
 }
